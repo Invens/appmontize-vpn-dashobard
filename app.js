@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');  // Importing the cors package
 const { sequelize, Admin } = require('./models');
@@ -9,8 +10,9 @@ const serverRoutes = require('./routes/serverRoutes');
 const AdminRoutes = require('./routes/adminRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');
+const Stripe = require('./routes/stripeRoutes');
 const razorpayRoutes = require('./routes/razorpayRoutes');
-require('dotenv').config();
+
 
 const app = express();
 
@@ -18,8 +20,9 @@ const app = express();
 app.use(cors());  // This will enable CORS for all routes and origins
 
 app.use(express.json());
-
-app.use('/api/payment', razorpayRoutes);
+app.use(express.static('public')); // To serve the HTML file
+app.use('/api/stripe', Stripe)
+app.use('/api/razorpay', razorpayRoutes);
 app.use('/api/admin', AdminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

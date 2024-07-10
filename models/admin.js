@@ -1,7 +1,7 @@
 // models/admin.js
 
 module.exports = (sequelize, DataTypes) => {
-    const Admin = sequelize.define('Admin', {
+    const Admin = sequelize.define('admin', {
       AdminID: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
     }, {
-      tableName: 'Admin',
+      tableName: 'admin',
       timestamps: true,
     });
   

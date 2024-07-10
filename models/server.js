@@ -1,6 +1,6 @@
 // models/server.js
 module.exports = (sequelize, DataTypes) => {
-    const Server = sequelize.define('Server', {
+    const Server = sequelize.define('server', {
       ServerID: {
         type: DataTypes.INTEGER,
         autoIncrement: true,

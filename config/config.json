@@ -4,7 +4,7 @@
       "password": "Loginamd@321",
       "database": "lokidashboard",
       "host": "127.0.0.1",
-      "dialect": "mysql"
+      "dialect": "MariaDB"
     }
   }
   

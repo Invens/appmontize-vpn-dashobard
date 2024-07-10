@@ -31,7 +31,7 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/servers', serverRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3003;
 
 sequelize.sync()
   .then(() => {

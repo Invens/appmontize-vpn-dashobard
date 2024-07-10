@@ -1,6 +1,6 @@
 // models/notificationHistory.js
 module.exports = (sequelize, DataTypes) => {
-    const NotificationHistory = sequelize.define('NotificationHistory', {
+    const NotificationHistory = sequelize.define('notificationhistory', {
       NotificationHistoryID: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
     }, {
-      tableName: 'NotificationHistory',
+      tableName: 'notificationhistory',
       timestamps: false,
     });
   

@@ -1,8 +1,8 @@
 {
     "development": {
-      "username": "loki_vpn",
+      "username": "lokivpn",
       "password": "Loginamd@321",
-      "database": "loki_vpn_dashboard",
+      "database": "lokidashboard",
       "host": "127.0.0.1",
       "dialect": "mysql"
     }

@@ -61,7 +61,7 @@ const getOrderTransactions = async (req, res) => {
   }
 };
 
-const paymentCallback = (req, res) => {
+const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
 
   let event;
@@ -79,6 +79,32 @@ const paymentCallback = (req, res) => {
   switch (event.type) {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
+      const userID = paymentIntent.metadata.userID;
+
+      // Fetch user and update subscription type
+      try {
+        const user = await User.findByPk(userID);
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Determine which subscription type was purchased based on amount or metadata
+        let SubscriptionTypeID = 1; // Example: Default to Basic subscription
+        // Logic to determine newSubscriptionTypeID based on paymentIntent.amount or other criteria
+
+        const newSubscriptionType = await SubscriptionTypeID.findByPk(SubscriptionTypeID);
+        if (!newSubscriptionType) {
+          return res.status(404).json({ error: 'Subscription type not found' });
+        }
+
+        // Update user's subscription type
+        await user.update({ SubscriptionTypeID: SubscriptionTypeID });
+
+        res.json({ message: 'Subscription updated successfully' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error updating subscription' });
+      }
       console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
       // Fulfill the purchase, e.g. update the database
       break;

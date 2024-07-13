@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { createServer, getServer, getAllServers, updateServer, deleteServer } = require('../controllers/serverController');
+const {getServersBySubscription, createServer, getServer, getAllServers, updateServer, deleteServer } = require('../controllers/serverController');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
+router.post('/',authenticateToken, getServersBySubscription);
 router.post('/', createServer);         // Create a new server
 router.get('/:serverID', getServer);    // Get a server by ID
 router.get('/', getAllServers);         // Get all servers

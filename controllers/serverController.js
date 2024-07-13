@@ -1,5 +1,29 @@
 const { Server, User } = require('../models');
 
+const getServersBySubscription = async (req, res) => {
+    try {
+      const userToken = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
+      const user = await User.findOne({ where: { UserID: decoded.userID } });
+  
+      let servers;
+      if (user) {
+        if (user.SubscriptionTypeID === 1) {
+          servers = await Server.findAll({ where: { ServerType: 'Free' } });
+        } else {
+          servers = await Server.findAll();
+        }
+      } else {
+        servers = await Server.findAll({ where: { ServerType: 'Free' } });
+      }
+  
+      res.status(200).json(servers);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching servers' });
+    }
+  };
+
 const createServer = async (req, res) => {
     try {
         const newServer = await Server.create(req.body);
@@ -67,4 +91,4 @@ const deleteServer = async (req, res) => {
     }
 };
 
-module.exports = { createServer, getServer, getAllServers, updateServer, deleteServer };
+module.exports = { getServersBySubscription,  createServer, getServer, getAllServers, updateServer, deleteServer };

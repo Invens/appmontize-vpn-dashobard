@@ -54,7 +54,7 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  try {
+  try { 
     const userID = req.user.userID;
     await User.update({ Token: null }, { where: { UserID: userID } });
 

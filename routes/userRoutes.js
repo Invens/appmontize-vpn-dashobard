@@ -25,5 +25,6 @@ router.get('/:id/subscription-details', authenticateToken, getSubscriptionDetail
 router.post('/upgrade-subscription', authenticateToken, upgradeSubscription); // Protected route
 router.get('/:id', authenticateToken, getUserById); // Protected route
 router.get('/', authenticateToken, getAllUsers); // Protected route
-
+router.get('/dashboard-user', getAllUsers);
+router.get('/dashboard-user/:id',getUserById);
 module.exports = router;

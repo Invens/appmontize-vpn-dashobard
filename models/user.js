@@ -30,10 +30,27 @@ module.exports = (sequelize, DataTypes) => {
     BandwidthUsed: {
       type: DataTypes.INTEGER,
       defaultValue: 0
-    }
-  }, {
+    },
+    OTP: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    OTPExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+  },
+  
+  {
     timestamps: true
-  });
+  }
+
+
+  );
 
   User.associate = models => {
     User.belongsTo(models.SubscriptionType, { foreignKey: 'SubscriptionTypeID' });

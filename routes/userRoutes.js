@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
+  verifyOTP,
   register,
   login,
   logout,
@@ -15,6 +16,7 @@ const {
 const { authenticateToken } = require('../middleware/authMiddleware');
 
 // User routes
+router.post('/verify-otp',verifyOTP);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', authenticateToken, logout); // Protected route

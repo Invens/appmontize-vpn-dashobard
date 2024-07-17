@@ -15,24 +15,55 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(Password, 10);
     const defaultSubscription = await SubscriptionType.findOne({ where: { SubscriptionTypeID: 1 } });
 
+    const otp = crypto.randomBytes(3).toString('hex');
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+
     const newUser = await User.create({
       Name,
       Email,
       Password: hashedPassword,
       SubscriptionTypeID: defaultSubscription.SubscriptionTypeID,
+      OTP: otp,
+      OTPExpiresAt: otpExpiresAt,
     });
 
-    const token = jwt.sign({ userID: newUser.UserID }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    newUser.Token = token;
-    await newUser.save();
+    await sendOTPEmail(Email, otp);
 
-    res.status(201).json({ message: 'User registered successfully', token, user: newUser });
+    res.status(201).json({ message: 'User registered successfully. Please verify your email.' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error registering user' });
   }
 };
 
+const verifyOTP = async (req, res) => {
+  try {
+    const { Email, otp } = req.body;
+    const user = await User.findOne({ where: { Email } });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or OTP' });
+    }
+
+    if (user.OTP !== otp || user.OTPExpiresAt < new Date()) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    user.OTP = null;
+    user.OTPExpiresAt = null;
+    user.isVerified = true;
+    await user.save();
+
+    const token = jwt.sign({ userID: user.UserID }, process.env.JWT_SECRET, { expiresIn: '10000h' });
+    user.Token = token;
+    await user.save();
+
+    res.status(200).json({ message: 'Email verified successfully', token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error verifying OTP' });
+  }
+};
 const login = async (req, res) => {
   try {
     const { Email, Password } = req.body;
@@ -214,6 +245,7 @@ const getAllUsers = async (req, res) => {
 };
 
 module.exports = {
+  verifyOTP,
   register,
   login,
   logout,

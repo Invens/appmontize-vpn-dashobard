@@ -6,7 +6,7 @@ function generateOtp() {
 
 async function sendOtpEmail(email, otp) {
   let transporter = nodemailer.createTransport({
-    host: 'sg2plzcpnl491273.prod.sin2.secureserver.net', // Replace with your SMTP server
+    host: 'mail.appmontize.co.in', // Replace with your SMTP server
     port: 587, // Replace with your SMTP server port
     secure: true, // true for 465, false for other ports
     auth: {

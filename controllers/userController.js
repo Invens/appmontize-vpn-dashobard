@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User, SubscriptionType, GuestUser } = require('../models');
+const { generateOtp, sendOtpEmail } = require('../utils/otputils');
 
 // user registration
 const register = async (req, res) => {
@@ -15,8 +16,8 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(Password, 10);
     const defaultSubscription = await SubscriptionType.findOne({ where: { SubscriptionTypeID: 1 } });
 
-    const otp = crypto.randomBytes(3).toString('hex');
-    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+    const otp = generateOtp();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
     const newUser = await User.create({
       Name,
@@ -27,9 +28,9 @@ const register = async (req, res) => {
       OTPExpiresAt: otpExpiresAt,
     });
 
-    await sendOTPEmail(Email, otp);
+    await sendOtpEmail(Email, otp);
 
-    res.status(201).json({ message: 'User registered successfully. Please verify your email.' });
+    res.status(201).json({ message: 'User registered successfully. Please verify your email.', user: newUser });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error registering user' });
@@ -38,32 +39,27 @@ const register = async (req, res) => {
 
 const verifyOTP = async (req, res) => {
   try {
-    const { Email, otp } = req.body;
-    const user = await User.findOne({ where: { Email } });
+    const { userID, otp } = req.body;
+    const user = await User.findOne({ where: { UserID: userID, OTP: otp } });
 
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid email or OTP' });
-    }
-
-    if (user.OTP !== otp || user.OTPExpiresAt < new Date()) {
+    if (!user || new Date() > new Date(user.OTPExpiresAt)) {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
+    user.isVerified = true;
     user.OTP = null;
     user.OTPExpiresAt = null;
-    user.isVerified = true;
     await user.save();
 
-    const token = jwt.sign({ userID: user.UserID }, process.env.JWT_SECRET, { expiresIn: '10000h' });
-    user.Token = token;
-    await user.save();
-
-    res.status(200).json({ message: 'Email verified successfully', token });
+    res.status(200).json({ message: 'OTP verified successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error verifying OTP' });
   }
 };
+
+
+
 const login = async (req, res) => {
   try {
     const { Email, Password } = req.body;

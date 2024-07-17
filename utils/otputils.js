@@ -6,11 +6,11 @@ function generateOtp() {
 
 async function sendOtpEmail(email, otp) {
   let transporter = nodemailer.createTransport({
-    host: 'mail.appmontize.co.in', // Replace with your SMTP server
+    host: 'smtp.google.com', // Replace with your SMTP server
     port: 587, // Replace with your SMTP server port
-    secure: false, // true for 465, false for other ports
+    secure: true, // true for 465, false for other ports
     auth: {
-      user: 'contact@appmontize.co.in', // Replace with your email
+      user: 'support@appmontize.co.in', // Replace with your email
       pass: 'Loginamd@321', // Replace with your email password
     },
   });

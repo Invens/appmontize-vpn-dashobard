@@ -14,10 +14,10 @@ const authenticateToken = async (req, res, next) => {
     console.log('Decoded JWT:', decoded); // Debugging line to check decoded token
 
     // Check in User model
-    let user = await User.findOne({ where: { UserID: decoded.userID, Token: token } });
+    let user = await User.findOne({ where: { UserID: decoded.userID } });
     if (!user) {
       // If not found in User, check in Admin model
-      user = await Admin.findOne({ where: { AdminID: decoded.userID, Token: token } });
+      user = await Admin.findOne({ where: { AdminID: decoded.userID } });
       if (!user) {
         return res.status(403).json({ message: 'Access denied. Invalid token.' });
       }

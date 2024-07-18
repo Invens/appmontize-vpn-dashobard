@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Server, User } = require('../models');
+const { Server, User, Admin } = require('../models');
 
 const getServersBySubscription = async (req, res) => {
   try {
@@ -8,7 +8,12 @@ const getServersBySubscription = async (req, res) => {
     const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
     console.log('Decoded Token:', decoded); // Debugging
 
-    const user = await User.findOne({ where: { UserID: decoded.userID } });
+    let user;
+    if (decoded.userID) {
+      user = await User.findOne({ where: { UserID: decoded.userID } });
+    } else if (decoded.adminID) {
+      user = await Admin.findOne({ where: { AdminID: decoded.adminID } });
+    }
     console.log('User Found:', user); // Debugging
 
     let servers;

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const { User, Admin } = require('../models');
 
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -11,16 +11,22 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ where: { UserID: decoded.userID, Token: token } });
+    console.log('Decoded JWT:', decoded); // Debugging line to check decoded token
 
+    // Check in User model
+    let user = await User.findOne({ where: { UserID: decoded.userID, Token: token } });
     if (!user) {
-      return res.status(403).json({ message: 'Access denied. Invalid token.' });
+      // If not found in User, check in Admin model
+      user = await Admin.findOne({ where: { AdminID: decoded.userID, Token: token } });
+      if (!user) {
+        return res.status(403).json({ message: 'Access denied. Invalid token.' });
+      }
     }
 
     req.user = user;
     next();
   } catch (error) {
-    console.error(error);
+    console.error('Token verification error:', error);
     res.status(403).json({ message: 'Invalid token.' });
   }
 };

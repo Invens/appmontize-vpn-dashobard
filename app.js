@@ -12,6 +12,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const Stripe = require('./routes/stripeRoutes');
 const razorpayRoutes = require('./routes/razorpayRoutes');
+const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerRoutes');
 
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/guests', guestUserRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/servers', serverRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/recent-servers', recentlyConnectedServerRoutes);
 
 const PORT = process.env.PORT || 3003;
 

@@ -1,6 +1,4 @@
-// controllers/recentlyConnectedServerController.js
-
-const RecentlyConnectedServer = require('../models/recentlyConnectedServer');
+const { RecentlyConnectedServer } = require('../models');
 
 const addRecentlyConnectedServer = async (req, res) => {
   try {

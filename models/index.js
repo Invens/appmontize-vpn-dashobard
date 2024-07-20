@@ -1,6 +1,4 @@
-// models/index.js
 const { Sequelize, DataTypes } = require('sequelize');
-const admin = require('./admin');
 const sequelize = new Sequelize(require('../config/config.json').development);
 
 // Import models
@@ -11,9 +9,21 @@ const Server = require('./server')(sequelize, DataTypes);
 const Admin = require('./admin')(sequelize, DataTypes);
 const Notification = require('./notification')(sequelize, DataTypes);
 const NotificationHistory = require('./notificationHistory')(sequelize, DataTypes);
-const recentlyConnectedServer = require('./recentlyConnectedServer') (sequelize, DataTypes);// Define associations
-User.associate({ SubscriptionType });
-NotificationHistory.associate({ Notification, User });
+const RecentlyConnectedServer = require('./recentlyConnectedServer')(sequelize, DataTypes);
+
+// Define associations
+User.associate = (models) => {
+  User.hasMany(models.RecentlyConnectedServer, { foreignKey: 'userId' });
+};
+
+NotificationHistory.associate = (models) => {
+  NotificationHistory.belongsTo(models.Notification, { foreignKey: 'notificationId' });
+  NotificationHistory.belongsTo(models.User, { foreignKey: 'userId' });
+};
+
+RecentlyConnectedServer.associate = (models) => {
+  RecentlyConnectedServer.belongsTo(models.User, { foreignKey: 'userId' });
+};
 
 // Export models and sequelize instance
 module.exports = {
@@ -25,5 +35,5 @@ module.exports = {
   Server,
   Notification,
   NotificationHistory,
-  recentlyConnectedServer
+  RecentlyConnectedServer,
 };

@@ -14,7 +14,6 @@ const NotificationHistory = require('./notificationHistory')(sequelize, DataType
 const recentlyConnectedServer = require('./recentlyConnectedServer') (sequelize, DataTypes);// Define associations
 User.associate({ SubscriptionType });
 NotificationHistory.associate({ Notification, User });
-recentlyConnectedServer.associate({recentlyConnectedServer, User});
 
 // Export models and sequelize instance
 module.exports = {

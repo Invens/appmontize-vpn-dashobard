@@ -11,10 +11,10 @@ const Server = require('./server')(sequelize, DataTypes);
 const Admin = require('./admin')(sequelize, DataTypes);
 const Notification = require('./notification')(sequelize, DataTypes);
 const NotificationHistory = require('./notificationHistory')(sequelize, DataTypes);
-
-// Define associations
+const recentlyConnectedServer = require('./recentlyConnectedServer') (sequelize, DataTypes);// Define associations
 User.associate({ SubscriptionType });
 NotificationHistory.associate({ Notification, User });
+recentlyConnectedServer.associate({recentlyConnectedServer, User});
 
 // Export models and sequelize instance
 module.exports = {
@@ -25,5 +25,6 @@ module.exports = {
   GuestUser,
   Server,
   Notification,
-  NotificationHistory
+  NotificationHistory,
+  recentlyConnectedServer
 };

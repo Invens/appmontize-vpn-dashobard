@@ -1,7 +1,7 @@
 // models/recentlyConnectedServer.js
 
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/config.json');
 
 class RecentlyConnectedServer extends Model {}
 

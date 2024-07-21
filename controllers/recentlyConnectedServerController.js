@@ -3,7 +3,7 @@ const { RecentlyConnectedServer } = require('../models');
 const addRecentlyConnectedServer = async (req, res) => {
   try {
     const { serverName, connectionTime, dataUsed } = req.body;
-    const userId = req.user.userID;
+    const userId = req.user.UserID; // Ensure correct casing, and this should match your DB schema
 
     const newServer = await RecentlyConnectedServer.create({
       userId,
@@ -21,7 +21,7 @@ const addRecentlyConnectedServer = async (req, res) => {
 
 const getRecentlyConnectedServers = async (req, res) => {
   try {
-    const userId = req.user.userID;
+    const userId = req.user.UserID; // Ensure correct casing, and this should match your DB schema
     const servers = await RecentlyConnectedServer.findAll({ where: { userId } });
 
     res.status(200).json(servers);

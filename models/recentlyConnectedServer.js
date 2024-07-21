@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     });
   
     RecentlyConnectedServer.associate = (models) => {
-      RecentlyConnectedServer.belongsTo(models.User, { foreignKey: 'userId' });
+      RecentlyConnectedServer.belongsTo(models.User, { foreignKey: 'UserId' });
     };
   
     return RecentlyConnectedServer;

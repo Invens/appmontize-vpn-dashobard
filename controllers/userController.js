@@ -69,7 +69,7 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userID: user.UserID }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userID: user.UserID }, process.env.JWT_SECRET, { expiresIn: '365D' });
     user.Token = token;
     await user.save();
 
@@ -112,7 +112,7 @@ const promoteGuestToRegistered = async (req, res) => {
 
     await GuestUser.destroy({ where: { DeviceID } });
 
-    const token = jwt.sign({ userID: newUser.UserID }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userID: newUser.UserID }, process.env.JWT_SECRET, { expiresIn: '365D' });
     newUser.Token = token;
     await newUser.save();
 

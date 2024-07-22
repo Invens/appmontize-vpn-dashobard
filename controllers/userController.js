@@ -60,12 +60,15 @@ const verifyOTP = async (req, res) => {
     user.OTPExpiresAt = null;
     await user.save();
 
-    res.status(200).json({ message: 'OTP verified successfully' });
+    const token = jwt.sign({ userID: user.UserID }, process.env.JWT_SECRET, { expiresIn: '365d' });
+
+    res.status(200).json({ message: 'OTP verified successfully', token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error verifying OTP' });
   }
 };
+
 
 
 

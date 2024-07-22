@@ -6,17 +6,17 @@ function generateOtp() {
 
 async function sendOtpEmail(email, otp) {
   let transporter = nodemailer.createTransport({
-    host: 'smtp.google.com', // Replace with your SMTP server
+    host: 'magnetcents.co.in', // Replace with your SMTP server
     port: 587, // Replace with your SMTP server port
     secure: true, // true for 465, false for other ports
     auth: {
-      user: 'support@appmontize.co.in', // Replace with your email
+      user: 'noreply@magnetcents.co.in', // Replace with your email
       pass: 'Loginamd@321', // Replace with your email password
     },
   });
 
   let mailOptions = {
-    from: '"Loki VPN " contact@appmontize.co.in', // sender address
+    from: '"Loki VPN "noreply@magnetcents.co.in', // sender address
     to: email, // list of receivers
     subject: 'Your OTP Code', // Subject line
     text: `Your OTP code is ${otp}`, // plain text body

@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+require('dotenv').config(); // Load environment variables from .env file
 
 function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000).toString();
@@ -6,17 +7,17 @@ function generateOtp() {
 
 async function sendOtpEmail(email, otp) {
   let transporter = nodemailer.createTransport({
-    host: 'magnetcents.co.in', // Replace with your SMTP server
-    port: 587, // Replace with your SMTP server port
-    secure: true, // true for 465, false for other ports
+    host: process.env.SMTP_HOST, // SMTP server
+    port: process.env.SMTP_PORT, // SMTP server port
+    secure: process.env.SMTP_PORT == 465, // true for port 465, false for other ports
     auth: {
-      user: 'noreply@magnetcents.co.in', // Replace with your email
-      pass: 'Loginamd@321', // Replace with your email password
+      user: process.env.SMTP_USER, // email
+      pass: process.env.SMTP_PASS, // email password
     },
   });
 
   let mailOptions = {
-    from: '"Loki VPN "noreply@magnetcents.co.in', // sender address
+    from: `"Loki VPN" <${process.env.SMTP_USER}>`, // sender address
     to: email, // list of receivers
     subject: 'Your OTP Code', // Subject line
     text: `Your OTP code is ${otp}`, // plain text body

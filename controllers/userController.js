@@ -30,7 +30,16 @@ const register = async (req, res) => {
 
     await sendOtpEmail(Email, otp);
 
-    res.status(201).json({ message: 'User registered successfully. Please verify your email.', user: newUser });
+    // Generate JWT token
+    const token = jwt.sign({ userID: newUser.UserID }, process.env.JWT_SECRET, { expiresIn: '365d' });
+    newUser.Token = token;
+    await newUser.save();
+
+    res.status(201).json({
+      message: 'User registered successfully. Please verify your email.',
+      user: newUser,
+      token: token, // Include token in the response
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error registering user' });

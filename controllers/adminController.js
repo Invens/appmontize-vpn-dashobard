@@ -18,7 +18,7 @@ const registerAdmin = async (req, res) => {
       Password: hashedPassword,
     });
 
-    const token = jwt.sign({ adminID: newAdmin.AdminID }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ adminID: newAdmin.AdminID }, process.env.JWT_SECRET, { expiresIn: '365D' });
     res.status(201).json({ message: 'Admin registered successfully', token });
   } catch (error) {
     console.error(error);

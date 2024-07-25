@@ -3,27 +3,26 @@ const { SubscriptionType } = require('../models');
 
 
 const createOrder = async (req, res) => {
-  const { amount, currency, description, userID, SubscriptionTypeID} = req.body;
+  const { amount, currency, description, userID, SubscriptionTypeID } = req.body;
 
-
-  console.log(`Creating order with amount ${amount} ${currency} and description "${description}"...`);
+  console.log(`Creating order with SubscriptionTypeID ${SubscriptionTypeID}...`);
   try {
     const subscription = await SubscriptionType.findByPk(SubscriptionTypeID);
     if (!subscription) {
+      console.log(`Subscription not found for ID ${SubscriptionTypeID}`);
       return res.status(404).json({ message: 'Subscription not found' });
     }
 
-    
     const paymentIntent = await stripe.paymentIntents.create({
       amount: subscription.Price * 100, // Amount should be in cents
       currency: 'usd',
       description: `Subscription for ${subscription.Name}`,
-      metadata: { SubscriptionTypeID, userID: req.user.userID }, // Attach subscriptionId and userID to metadata
+      metadata: { SubscriptionTypeID, userID },
     });
-
 
     res.json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };

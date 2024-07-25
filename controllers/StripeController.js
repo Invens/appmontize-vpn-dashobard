@@ -1,12 +1,14 @@
 const stripe = require('../config/stripe');
+const { SubscriptionType } = require('../models');
+
 
 const createOrder = async (req, res) => {
-  const { amount, currency, description, userID, subscriptionId} = req.body;
+  const { amount, currency, description, userID, SubscriptionTypeID} = req.body;
 
 
   console.log(`Creating order with amount ${amount} ${currency} and description "${description}"...`);
   try {
-    const subscription = await SubscriptionType.findByPk(subscriptionId);
+    const subscription = await SubscriptionType.findByPk(SubscriptionTypeID);
     if (!subscription) {
       return res.status(404).json({ message: 'Subscription not found' });
     }
@@ -16,7 +18,7 @@ const createOrder = async (req, res) => {
       amount: subscription.Price * 100, // Amount should be in cents
       currency: 'usd',
       description: `Subscription for ${subscription.Name}`,
-      metadata: { subscriptionId, userId: req.user.userID }, // Attach subscriptionId and userID to metadata
+      metadata: { SubscriptionTypeID, userID: req.user.userID }, // Attach subscriptionId and userID to metadata
     });
 
 
@@ -25,6 +27,8 @@ const createOrder = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 const getOrder = async (req, res) => {
   const { orderId } = req.params;

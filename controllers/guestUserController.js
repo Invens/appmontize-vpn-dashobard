@@ -12,7 +12,7 @@ const registerGuest = async (req, res) => {
     }
 
     const username = `Guest_${uuidv4().slice(0, 8)}`;
-    const token = jwt.sign({ deviceID: DeviceID }, process.env.JWT_SECRET, { expiresIn: '365D' });
+    const token = jwt.sign({ deviceID: DeviceID }, process.env.JWT_SECRET, { expiresIn: '365d' });
 
     const guestUser = await GuestUser.create({ DeviceID, Username: username, Token: token });
 

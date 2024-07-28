@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User, Admin } = require('../models');
+const { User, Admin, GuestUser } = require('../models');
 
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -20,6 +20,9 @@ const authenticateToken = async (req, res, next) => {
     } else if (decoded.adminID) {
       // Check in Admin model
       user = await Admin.findOne({ where: { AdminID: decoded.adminID } });
+    } else if (decoded.deviceID) {
+      // Check in GuestUser model
+      user = await GuestUser.findOne({ where: { DeviceID: decoded.deviceID } });
     }
 
     if (!user) {

@@ -18,7 +18,11 @@ const registerGuest = async (req, res) => {
     }
 
     // Return the token and other necessary information
-    res.status(200).json({ message: 'Guest user registered successfully', token: guestUser.Token });
+    res.status(200).json({ 
+      message: 'Guest user registered successfully', 
+      guestUserID: guestUser.GuestUserID, 
+      token: guestUser.Token 
+    });
   } catch (error) {
     console.error('Error registering guest user:', error);
     res.status(500).json({ message: 'Error registering guest user' });

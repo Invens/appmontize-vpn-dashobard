@@ -5,23 +5,27 @@ const jwt = require('jsonwebtoken');
 const registerGuest = async (req, res) => {
   try {
     const { DeviceID } = req.body;
-    const existingGuest = await GuestUser.findOne({ where: { DeviceID } });
+    
+    // Check if the guest user already exists
+    let guestUser = await GuestUser.findOne({ where: { DeviceID } });
 
-    if (existingGuest) {
-      return res.status(200).json({ message: 'Guest user already registered', token: existingGuest.Token });
+    if (!guestUser) {
+      // If not, create a new guest user
+      const username = `Guest_${uuidv4().slice(0, 8)}`;
+      const token = jwt.sign({ deviceID: DeviceID }, process.env.JWT_SECRET, { expiresIn: '365d' });
+
+      guestUser = await GuestUser.create({ DeviceID, Username: username, Token: token });
     }
 
-    const username = `Guest_${uuidv4().slice(0, 8)}`;
-    const token = jwt.sign({ deviceID: DeviceID }, process.env.JWT_SECRET, { expiresIn: '365d' });
-
-    const guestUser = await GuestUser.create({ DeviceID, Username: username, Token: token });
-
-    res.status(201).json({ message: 'Guest user registered successfully', token, guestUser });
+    // Return the token and other necessary information
+    res.status(200).json({ message: 'Guest user registered successfully', token: guestUser.Token });
   } catch (error) {
-    console.error(error);
+    console.error('Error registering guest user:', error);
     res.status(500).json({ message: 'Error registering guest user' });
   }
 };
+
+
 
 const getGuestUserDetails = async (req, res) => {
   try {

@@ -83,36 +83,45 @@ const paymentCallback = async (req, res) => {
   let event;
 
   try {
+    // Log the raw body for debugging
+    console.log('Raw body received:', req.body.toString('utf8'));
+
     // Verify the webhook signature and extract the event
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+
+    // Log the event for debugging
+    console.log('Verified event:', event);
   } catch (err) {
+    // Log the error for debugging
     console.error(`⚠️ Webhook signature verification failed.`, err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // Process the event
-  if (event.type === 'payment_intent.succeeded') {
-    const paymentIntent = event.data.object;
-    const userID = paymentIntent.metadata.userID;
-    const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
+  try {
+    if (event.type === 'payment_intent.succeeded') {
+      const paymentIntent = event.data.object;
+      const userID = paymentIntent.metadata.userID;
+      const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
 
-    try {
+      console.log(`Processing payment for user ID ${userID} with subscription type ${subscriptionTypeID}`);
+
       const user = await User.findByPk(userID);
       if (!user) {
+        console.error(`User not found with ID ${userID}`);
         return res.status(404).json({ error: 'User not found' });
       }
 
       await user.update({ SubscriptionTypeID: subscriptionTypeID });
-
       console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
-      res.json({ message: 'Subscription updated successfully' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Error updating subscription' });
+      return res.json({ message: 'Subscription updated successfully' });
+    } else {
+      console.log(`Unhandled event type ${event.type}`);
+      return res.json({ received: true });
     }
-  } else {
-    console.log(`Unhandled event type ${event.type}`);
-    res.json({ received: true });
+  } catch (error) {
+    console.error('Error processing event:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 

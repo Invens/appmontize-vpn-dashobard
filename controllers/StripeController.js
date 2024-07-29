@@ -75,35 +75,39 @@ const getOrderTransactions = async (req, res) => {
   }
 };
 
+// Handle Stripe webhooks to confirm payment events
 const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
 
   let event;
   try {
+    // Use express.raw() middleware for the webhook route to get the raw body
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
+    console.error(`Webhook signature verification failed: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   console.log('Received Stripe Event:', event);
 
+  // Handle the 'payment_intent.succeeded' event
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object;
     const userID = paymentIntent.metadata.userID;
     const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
 
     try {
+      // Update the user's subscription based on the metadata
       const user = await User.findByPk(userID);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
 
       await user.update({ SubscriptionTypeID: subscriptionTypeID });
-
       console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
       res.json({ message: 'Subscription updated successfully' });
     } catch (error) {
-      console.error(error);
+      console.error('Error updating subscription:', error);
       res.status(500).json({ error: 'Error updating subscription' });
     }
   } else {

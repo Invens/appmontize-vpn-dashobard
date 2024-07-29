@@ -1,5 +1,4 @@
 const stripe = require('../config/stripe');
-const { SubscriptionType } = require('../models');
 const { User, SubscriptionType } = require('../models');
 
 

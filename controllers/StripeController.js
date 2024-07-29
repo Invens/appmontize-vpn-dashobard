@@ -1,5 +1,7 @@
 const stripe = require('../config/stripe');
 const { SubscriptionType } = require('../models');
+const { User, SubscriptionType } = require('../models');
+
 
 
 const createOrder = async (req, res) => {
@@ -10,7 +12,7 @@ const createOrder = async (req, res) => {
     const subscription = await SubscriptionType.findByPk(SubscriptionTypeID);
     if (!subscription) {
       console.log(`Subscription not found for ID ${SubscriptionTypeID}`);
-      return res.status(404).json({ message: 'Subscription not found' });
+      return res.stdatus(404).json({ message: 'Subscription not found' });
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
@@ -78,54 +80,37 @@ const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
 
   let event;
-
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Log the event received
   console.log('Received Stripe Event:', event);
 
-  // Handle the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object;
-      const userID = paymentIntent.metadata.userID;
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object;
+    const userID = paymentIntent.metadata.userID;
+    const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
 
-      // Fetch user and update subscription type
-      try {
-        const user = await User.findByPk(userID);
-        if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-
-        // Determine which subscription type was purchased based on amount or metadata
-        let SubscriptionTypeID = 1; // Example: Default to Basic subscription
-        // Logic to determine newSubscriptionTypeID based on paymentIntent.amount or other criteria
-
-        const newSubscriptionType = await SubscriptionTypeID.findByPk(SubscriptionTypeID);
-        if (!newSubscriptionType) {
-          return res.status(404).json({ error: 'Subscription type not found' });
-        }
-
-        // Update user's subscription type
-        await user.update({ SubscriptionTypeID: SubscriptionTypeID });
-
-        res.json({ message: 'Subscription updated successfully' });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error updating subscription' });
+    try {
+      const user = await User.findByPk(userID);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
-      console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
-      // Fulfill the purchase, e.g. update the database
-      break;
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-  }
 
-  res.json({ received: true });
+      await user.update({ SubscriptionTypeID: subscriptionTypeID });
+
+      console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
+      res.json({ message: 'Subscription updated successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error updating subscription' });
+    }
+  } else {
+    console.log(`Unhandled event type ${event.type}`);
+    res.json({ received: true });
+  }
 };
 
 const getPublishableKey = (req, res) => {

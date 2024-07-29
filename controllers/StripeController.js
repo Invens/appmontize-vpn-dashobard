@@ -2,7 +2,6 @@ const stripe = require('../config/stripe');
 const { User, SubscriptionType } = require('../models');
 
 
-
 const createOrder = async (req, res) => {
   const { amount, currency, description, userID, SubscriptionTypeID } = req.body;
 
@@ -11,23 +10,24 @@ const createOrder = async (req, res) => {
     const subscription = await SubscriptionType.findByPk(SubscriptionTypeID);
     if (!subscription) {
       console.log(`Subscription not found for ID ${SubscriptionTypeID}`);
-      return res.stdatus(404).json({ message: 'Subscription not found' });
+      return res.status(404).json({ message: 'Subscription not found' });
     }
 
+    console.log(`Subscription found: ${subscription.Name}, Price: ${subscription.Price}`);
     const paymentIntent = await stripe.paymentIntents.create({
       amount: subscription.Price * 100, // Amount should be in cents
-      currency: 'usd',
+      currency,
       description: `Subscription for ${subscription.Name}`,
       metadata: { SubscriptionTypeID, userID },
     });
 
+    console.log('PaymentIntent created:', paymentIntent.id);
     res.json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
-    console.error(error);
+    console.error('Error creating PaymentIntent:', error);
     res.status(500).json({ error: error.message });
   }
 };
-
 
 
 const getOrder = async (req, res) => {
@@ -80,20 +80,14 @@ const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+  console.log('Received webhook event. Signature:', sig);
+
   let event;
-
   try {
-    // Log the raw body for debugging
-    console.log('Raw body received:', req.body.toString('utf8'));
-
-    // Verify the webhook signature and extract the event
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-
-    // Log the event for debugging
     console.log('Verified event:', event);
   } catch (err) {
-    // Log the error for debugging
-    console.error(`⚠️ Webhook signature verification failed.`, err.message);
+    console.error('⚠️ Webhook signature verification failed.', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 

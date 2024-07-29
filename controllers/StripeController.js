@@ -78,41 +78,41 @@ const getOrderTransactions = async (req, res) => {
 // Handle Stripe webhooks to confirm payment events
 const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
   let event;
 
   try {
-    // Using raw body for signature verification
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    // Verify the webhook signature and extract the event
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err) {
     console.error(`⚠️ Webhook signature verification failed.`, err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object;
-      const userID = paymentIntent.metadata.userID;
-      const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
+  // Process the event
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object;
+    const userID = paymentIntent.metadata.userID;
+    const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
 
-      try {
-        const user = await User.findByPk(userID);
-        if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-
-        await user.update({ SubscriptionTypeID: subscriptionTypeID });
-
-        console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
-        res.json({ message: 'Subscription updated successfully' });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error updating subscription' });
+    try {
+      const user = await User.findByPk(userID);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
-      break;
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-      res.json({ received: true });
+
+      await user.update({ SubscriptionTypeID: subscriptionTypeID });
+
+      console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
+      res.json({ message: 'Subscription updated successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error updating subscription' });
+    }
+  } else {
+    console.log(`Unhandled event type ${event.type}`);
+    res.json({ received: true });
   }
 };
 

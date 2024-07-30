@@ -10,14 +10,15 @@ const {
   getPublishableKey,
 } = require('../controllers/StripeController');
 
-const router = express.Router();
-router.use(bodyParser.json());
 
 // Ensure raw body for webhook
 router.post('/webhook', express.raw({ type: 'application/json' }), paymentCallback);
 
 // Other routes
 router.post('/create-order', createOrder);
+const router = express.Router();
+router.use(bodyParser.json());
+
 router.get('/publishable-key', getPublishableKey);
 router.get('/orders/:orderId', getOrder);
 router.get('/orders', listOrders);

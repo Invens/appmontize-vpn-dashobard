@@ -1,5 +1,6 @@
 const express = require('express');
 const { createOrder, getOrder, listOrders, orderStatus, getOrderTransactions, paymentCallback, getPublishableKey } = require('../controllers/StripeController');
+
 const router = express.Router();
 
 router.post('/create-order', createOrder);
@@ -16,6 +17,6 @@ router.get('/orders', listOrders);
 router.get('/orders/:orderId/status', orderStatus);
 
 // Route to get order transactions by ID
-router.get('/orders/:orderId/transactions',getOrderTransactions);
+router.get('/orders/:orderId/transactions', getOrderTransactions);
 
 module.exports = router;

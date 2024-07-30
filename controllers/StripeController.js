@@ -80,10 +80,10 @@ const endpointSecret = "whsec_3f62e5237d39a34fbf223cae2c69b41fddf4a3b01123ddc630
 
 const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
-
   let event;
 
   try {
+    // Use the raw body from the request
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     console.log('Received Stripe Event:', event);
   } catch (err) {
@@ -91,6 +91,7 @@ const paymentCallback = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  // Process the event
   switch (event.type) {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
@@ -104,7 +105,6 @@ const paymentCallback = async (req, res) => {
         }
 
         await user.update({ SubscriptionTypeID: subscriptionTypeID });
-
         console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
         res.json({ message: 'Subscription updated successfully' });
       } catch (error) {

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { sequelize } = require('./models');
+const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const guestUserRoutes = require('./routes/guestUserRoutes');
@@ -14,12 +15,11 @@ const razorpayRoutes = require('./routes/razorpayRoutes');
 const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerRoutes');
 
 const app = express();
-app.use(cors());  // This will enable CORS for all routes and origins
-app.use(express.json());
-app.use(express.static('public')); // To serve the HTML file
+app.use(cors());  // Enable CORS for all routes and origins
+app.use(bodyParser.json()); // Use bodyParser to parse JSON bodies
 
 // Route to handle Stripe webhooks with raw body
-app.use('/api/stripe', stripeRoutes);
+app.use('/api/stripe', express.raw({ type: 'application/json' }), stripeRoutes);
 
 // Other routes
 app.use('/api/razorpay', razorpayRoutes);

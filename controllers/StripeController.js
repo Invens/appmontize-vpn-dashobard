@@ -82,12 +82,15 @@ const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
+  // The raw body should be accessed directly
+  const rawBody = req.body; // This should be a Buffer due to bodyParser.raw
+
   console.log('Headers:', req.headers);
-  console.log('Raw body:', req.body);  // Log the raw body to see if it's being received correctly
+  console.log('Raw body:', rawBody.toString());  // Log the raw body as a string for debugging
 
   try {
     // Use the raw body from the request
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
     console.log('Received Stripe Event:', event);
   } catch (err) {
     console.error(`⚠️ Webhook signature verification failed.`, err.message);
@@ -121,7 +124,6 @@ const paymentCallback = async (req, res) => {
 
   res.json({ received: true });
 };
-
 const getPublishableKey = (req, res) => {
   res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
 };

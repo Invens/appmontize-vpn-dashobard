@@ -14,16 +14,8 @@ const razorpayRoutes = require('./routes/razorpayRoutes');
 const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerRoutes');
 
 
-app.use(
-  bodyParser.json({
-      verify: function(req, res, buf) {
-          req.rawBody = buf;
-      }
-  })
-);
 
 app.use(bodyParser.json());
-
 const app = express();
 app.use(cors());  // This will enable CORS for all routes and origins
 app.use(express.json());  // General JSON parsing middleware

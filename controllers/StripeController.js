@@ -82,11 +82,8 @@ const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
-  console.log('Headers:', req.headers);
-  console.log('Raw body:', req.body);  // Log the raw body to see if it's being received correctly
-
   try {
-    // Use the raw body from the request
+    // Use the raw body from the request and pass it directly
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     console.log('Received Stripe Event:', event);
   } catch (err) {

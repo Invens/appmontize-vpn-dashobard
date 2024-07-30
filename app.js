@@ -14,9 +14,11 @@ const razorpayRoutes = require('./routes/razorpayRoutes');
 const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerRoutes');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.static('public'));
+app.use(cors());  // This will enable CORS for all routes and origins
+app.use(express.json());  // General JSON parsing middleware
+
+// Route to handle Stripe webhooks with raw body
+app.use('/api/stripe', stripeRoutes);
 
 // Other routes
 app.use('/api/razorpay', razorpayRoutes);
@@ -28,9 +30,6 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/servers', serverRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/recent-servers', recentlyConnectedServerRoutes);
-
-// Route to handle Stripe webhooks with raw body
-app.use('/api/stripe', stripeRoutes);
 
 const PORT = process.env.PORT || 3003;
 

@@ -90,7 +90,7 @@ const paymentCallback = async (req, res) => {
 
   try {
     // Use the raw body from the request
-    event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
+    event = stripe.webhooks.constructEvent(request.rawBody, sig, endpointSecret);
     console.log('Received Stripe Event:', event);
   } catch (err) {
     console.error(`⚠️ Webhook signature verification failed.`, err.message);

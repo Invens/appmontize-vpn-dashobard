@@ -13,7 +13,7 @@ const {
 const router = express.Router();
 
 // Ensure raw body for webhook
-router.post('/webhook', bodyParser.raw({ type: 'application/json' }), paymentCallback);
+router.post('/webhook', express.raw({ type: 'application/json' }), paymentCallback);
 
 // Other routes
 router.post('/create-order', createOrder);

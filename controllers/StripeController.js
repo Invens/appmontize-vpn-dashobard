@@ -82,9 +82,6 @@ const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
-  console.log('Headers:', req.headers);
-  console.log('Raw body:', req.body);  // Log the raw body to see if it's being received correctly
-
   try {
     // Use the raw body from the request
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
@@ -121,7 +118,6 @@ const paymentCallback = async (req, res) => {
 
   res.json({ received: true });
 };
-
 const getPublishableKey = (req, res) => {
   res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
 };

@@ -15,9 +15,8 @@ const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerR
 
 
 const app = express();
-app.use(express.json());  // General JSON parsing middleware
-
 app.use(cors());  // This will enable CORS for all routes and origins
+app.use(express.json());  // General JSON parsing middleware
 
 // Route to handle Stripe webhooks with raw body
 app.use('/api/stripe', stripeRoutes);

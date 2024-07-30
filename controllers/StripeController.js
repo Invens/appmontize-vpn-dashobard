@@ -78,7 +78,6 @@ const getOrderTransactions = async (req, res) => {
 // Handle Stripe webhooks to confirm payment events
 const endpointSecret = "whsec_3f62e5237d39a34fbf223cae2c69b41fddf4a3b01123ddc63087db22b65b5611";
 
-
 const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;

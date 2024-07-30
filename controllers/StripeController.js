@@ -82,8 +82,8 @@ const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
-  // The raw body should be accessed directly
-  const rawBody = req.body; // This should be a Buffer due to bodyParser.raw
+  // Access the raw body directly
+  const rawBody = req.body;
 
   console.log('Headers:', req.headers);
   console.log('Raw body:', rawBody.toString());  // Log the raw body as a string for debugging
@@ -124,6 +124,7 @@ const paymentCallback = async (req, res) => {
 
   res.json({ received: true });
 };
+
 const getPublishableKey = (req, res) => {
   res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
 };

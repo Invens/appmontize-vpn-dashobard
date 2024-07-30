@@ -11,6 +11,7 @@ const {
 } = require('../controllers/StripeController');
 
 const router = express.Router();
+router.use(bodyParser.json());
 
 // Ensure raw body for webhook
 router.post('/webhook', express.raw({ type: 'application/json' }), paymentCallback);

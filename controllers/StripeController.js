@@ -5,10 +5,6 @@ const { User, SubscriptionType } = require('../models');
 const createOrder = async (req, res) => {
   const { amount, currency, description, userID, SubscriptionTypeID } = req.body;
 
-  if (!amount || !currency || !description || !userID || !SubscriptionTypeID) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
-
   console.log(`Creating order with SubscriptionTypeID ${SubscriptionTypeID}...`);
   try {
     const subscription = await SubscriptionType.findByPk(SubscriptionTypeID);

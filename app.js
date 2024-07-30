@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');  // Importing the cors package
 const { sequelize, Admin } = require('./models');
 const authRoutes = require('./routes/authRoutes');
@@ -16,7 +17,7 @@ const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerR
 
 
 const app = express();
-
+app.use(bodyParser.json()); // for parsing application/json
 // Use CORS middleware
 app.use(cors());  // This will enable CORS for all routes and origins
 

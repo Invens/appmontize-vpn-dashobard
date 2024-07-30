@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const { sequelize } = require('./models');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -17,8 +18,18 @@ const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerR
 const app = express();
 app.use(cors());  // This will enable CORS for all routes and origins
 
+app.use(
+  bodyParser.json({
+      verify: function(req, res, buf) {
+          req.rawBody = buf;
+      }
+  })
+);
+
 // Route to handle Stripe webhooks with raw body
 app.use('/api/stripe', stripeRoutes);
+app.use(bodyParser.json());
+
 app.use(express.json());  // General JSON parsing middleware
 
 // Other routes

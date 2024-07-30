@@ -1,10 +1,9 @@
-// routes/stripeRoutes.js
 const express = require('express');
 const { createOrder, getOrder, listOrders, orderStatus, getOrderTransactions, paymentCallback, getPublishableKey } = require('../controllers/StripeController');
 const router = express.Router();
 
 router.post('/create-order', createOrder);
-router.post('/webhook', express.raw({ type: 'application/json' }), paymentCallback);
+router.post('/webhook', express.raw({ type: 'application/json' }), paymentCallback);  // Ensure raw body for webhook
 router.get('/publishable-key', getPublishableKey);
 
 // Route to get order details by ID

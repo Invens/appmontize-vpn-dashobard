@@ -1,31 +1,29 @@
 require('dotenv').config();
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');  // Importing the cors package
-const { sequelize, Admin } = require('./models');
+const cors = require('cors');
+const { sequelize } = require('./models');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const guestUserRoutes = require('./routes/guestUserRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const serverRoutes = require('./routes/serverRoutes');
-const AdminRoutes = require('./routes/adminRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
-const { authenticateToken } = require('./middleware/authMiddleware');
-const Stripe = require('./routes/stripeRoutes');
+const stripeRoutes = require('./routes/stripeRoutes');
 const razorpayRoutes = require('./routes/razorpayRoutes');
 const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerRoutes');
 
-
 const app = express();
-app.use(bodyParser.json()); // for parsing application/json
-// Use CORS middleware
 app.use(cors());  // This will enable CORS for all routes and origins
-
 app.use(express.json());
 app.use(express.static('public')); // To serve the HTML file
-app.use('/api/stripe', Stripe)
+
+// Route to handle Stripe webhooks with raw body
+app.use('/api/stripe', stripeRoutes);
+
+// Other routes
 app.use('/api/razorpay', razorpayRoutes);
-app.use('/api/admin', AdminRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/guests', guestUserRoutes);

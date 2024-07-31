@@ -3,9 +3,9 @@ const { User, SubscriptionType } = require('../models');
 
 
 const createOrder = async (req, res) => {
-  const { amount, currency, description, userID, SubscriptionTypeID } = req.body;
+  const { amount, currency, description, userId, SubscriptionTypeID } = req.body;
 
-  console.log(`Creating order with SubscriptionTypeID ${SubscriptionTypeID} for userID ${userID}...`);
+  console.log(`Creating order with SubscriptionTypeID ${SubscriptionTypeID} for userID ${userId}...`);
   try {
     const subscription = await SubscriptionType.findByPk(SubscriptionTypeID);
     if (!subscription) {

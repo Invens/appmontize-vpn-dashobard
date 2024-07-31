@@ -16,7 +16,7 @@ const createOrder = async (req, res) => {
       amount: subscription.Price * 100, // Amount should be in cents
       currency: 'usd',
       description: `Subscription for ${subscription.Name}`,
-      metadata: { SubscriptionTypeID: SubscriptionTypeID, userID: userID }, // Use `userId` as defined
+      metadata: { SubscriptionTypeID: SubscriptionTypeID, userId: userID }, // Use `userId` as defined
     });
 
     res.json({ clientSecret: paymentIntent.client_secret });

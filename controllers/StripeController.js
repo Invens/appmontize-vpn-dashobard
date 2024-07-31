@@ -77,50 +77,41 @@ const endpointSecret = "whsec_4KTZAR7iLhCa4SE6Ddyu88AHv4LipU6K";
 
 const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
+
   let event;
-
-  // Access the raw body directly
-  const rawBody = req.rawBody.toString();
-
-  console.log('Headers:', req.headers);
-  console.log('Raw body:', rawBody.toString());  // Log the raw body as a string for debugging
-
   try {
-    // Use the raw body from the request
-    event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
-    console.log('Received Stripe Event:', event);
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.error(`⚠️ Webhook signature verification failed.`, err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Process the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object;
-      const userID = paymentIntent.metadata.userID;
-      const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
+  console.log('Received Stripe Event:', event);
 
-      try {
-        const user = await User.findByPk(userID);
-        if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-        }
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object;
+    const userId = paymentIntent.metadata.userId;
+    const subscriptionTypeId = paymentIntent.metadata.SubscriptionTypeID;
 
-        await user.update({ SubscriptionTypeID: subscriptionTypeID });
-        console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
-        res.json({ message: 'Subscription updated successfully' });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error updating subscription' });
+    try {
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' }); // Ensure early return
       }
-      break;
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+
+      await user.update({ SubscriptionTypeID: subscriptionTypeId });
+      console.log(`User ${userId} subscription updated to ${subscriptionTypeId}`);
+      // Avoid sending another response here
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Error updating subscription' }); // Ensure early return
+    }
+  } else {
+    console.log(`Unhandled event type ${event.type}`);
   }
 
-  res.json({ received: true });
+  res.json({ received: true }); // Send a response once, after all processing
 };
+
 
 const getPublishableKey = (req, res) => {
   res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });

@@ -18,6 +18,8 @@ const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerR
 const app = express();
 app.use(cors());  // This will enable CORS for all routes and origins
 
+app.use(bodyParser.urlencoded({extended: false}))
+
 app.use(
   bodyParser.json({
       verify: function(req, res, buf) {
@@ -25,17 +27,9 @@ app.use(
       }
   })
 );
-app.use(bodyParser.json({
-  // Because Stripe needs the raw body, we compute it but only when hitting the Stripe callback URL.
-  verify: function(req,res,buf) {
-      var url = req.originalUrl;
-      if (url.startsWith('/api/stripe')) {
-          req.rawBody = buf.toString()
-      }
-  }}));
+
 // Route to handle Stripe webhooks with raw body
 app.use('/api/stripe', stripeRoutes);
-app.use(bodyParser.json());
 
 app.use(express.json());  // General JSON parsing middleware
 

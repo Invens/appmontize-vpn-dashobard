@@ -11,10 +11,10 @@ const {
 } = require('../controllers/StripeController');
 
 const router = express.Router();
-router.use(bodyParser.json());
+// router.use(bodyParser.json());
 
 // Ensure raw body for webhook
-router.post('/webhook', bodyParser.raw({type: '*/*'}), paymentCallback);
+router.post('/webhook', bodyParser.raw({ type: 'application/json' }), paymentCallback);
 
 // Other routes
 router.post('/create-order', createOrder);

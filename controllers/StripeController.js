@@ -83,7 +83,7 @@ const paymentCallback = async (req, res) => {
   let event;
 
   // Access the raw body directly
-  const rawBody = req.body.toString();
+  const rawBody = req.rawBody.toString();
 
   console.log('Headers:', req.headers);
   console.log('Raw body:', rawBody.toString());  // Log the raw body as a string for debugging

@@ -76,14 +76,14 @@ const getOrderTransactions = async (req, res) => {
 };
 
 // Handle Stripe webhooks to confirm payment events
-const endpointSecret = "whsec_3f62e5237d39a34fbf223cae2c69b41fddf4a3b01123ddc63087db22b65b5611";
+const endpointSecret = "whsec_4KTZAR7iLhCa4SE6Ddyu88AHv4LipU6K";
 
 const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
   // Access the raw body directly
-  const rawBody = req.body;
+  const rawBody = req.body.toString();
 
   console.log('Headers:', req.headers);
   console.log('Raw body:', rawBody.toString());  // Log the raw body as a string for debugging

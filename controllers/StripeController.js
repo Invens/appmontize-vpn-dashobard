@@ -1,11 +1,10 @@
 const stripe = require('../config/stripe');
 const { User, SubscriptionType } = require('../models');
 
-
 const createOrder = async (req, res) => {
-  const { amount, currency, description, userId, SubscriptionTypeID } = req.body;
+  const { amount, currency, description, userID, SubscriptionTypeID } = req.body;
 
-  console.log(`Creating order with SubscriptionTypeID ${SubscriptionTypeID} for userID ${userId}...`);
+  console.log(`Creating order with SubscriptionTypeID ${SubscriptionTypeID} for userID ${userID}...`);
   try {
     const subscription = await SubscriptionType.findByPk(SubscriptionTypeID);
     if (!subscription) {
@@ -17,7 +16,7 @@ const createOrder = async (req, res) => {
       amount: subscription.Price * 100, // Amount should be in cents
       currency: 'usd',
       description: `Subscription for ${subscription.Name}`,
-      metadata: { SubscriptionTypeID: SubscriptionTypeID, userID: userID }, // Include both SubscriptionTypeID and userID
+      metadata: { SubscriptionTypeID: SubscriptionTypeID, userId: userID }, // Use `userId` as defined
     });
 
     res.json({ clientSecret: paymentIntent.client_secret });

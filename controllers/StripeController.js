@@ -77,41 +77,49 @@ const endpointSecret = "whsec_4KTZAR7iLhCa4SE6Ddyu88AHv4LipU6K";
 
 const paymentCallback = async (req, res) => {
   const sig = req.headers['stripe-signature'];
-
   let event;
+
+  // Access the raw body directly
+  const rawBody = req.rawBody.toString();
+
+  console.log('Headers:', req.headers);
+  console.log('Raw body:', rawBody.toString());  // Log the raw body as a string for debugging
+
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    // Use the raw body from the request
+    event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
+    console.log('Received Stripe Event:', event);
   } catch (err) {
+    console.error(`⚠️ Webhook signature verification failed.`, err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  console.log('Received Stripe Event:', event);
+  // Process the event
+  switch (event.type) {
+    case 'payment_intent.succeeded':
+      const paymentIntent = event.data.object;
+      const userID = paymentIntent.metadata.userID;
+      const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
 
-  if (event.type === 'payment_intent.succeeded') {
-    const paymentIntent = event.data.object;
-    const userId = paymentIntent.metadata.userId;
-    const subscriptionTypeId = paymentIntent.metadata.SubscriptionTypeID;
+      try {
+        const user = await User.findByPk(userID);
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
 
-    try {
-      const user = await User.findByPk(userId);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' }); // Ensure early return
+        await user.update({ SubscriptionTypeID: subscriptionTypeID });
+        console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error updating subscription' });
       }
-
-      await user.update({ SubscriptionTypeID: subscriptionTypeId });
-      console.log(`User ${userId} subscription updated to ${subscriptionTypeId}`);
-      // Avoid sending another response here
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Error updating subscription' }); // Ensure early return
-    }
-  } else {
-    console.log(`Unhandled event type ${event.type}`);
+      break;
+    default:
+      console.log(`Unhandled event type ${event.type}`);
   }
 
-  res.json({ received: true }); // Send a response once, after all processing
+  res.json({ received: true });
 };
-
 
 const getPublishableKey = (req, res) => {
   res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });

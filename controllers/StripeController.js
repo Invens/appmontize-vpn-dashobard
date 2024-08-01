@@ -80,10 +80,7 @@ const paymentCallback = async (req, res) => {
   let event;
 
   // Access the raw body directly
-  const rawBody = req.rawBody.toString();
-
-  console.log('Headers:', req.headers);
-  console.log('Raw body:', rawBody.toString());  // Log the raw body as a string for debugging
+  const rawBody = req.rawBody;
 
   try {
     // Use the raw body from the request
@@ -94,31 +91,42 @@ const paymentCallback = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Process the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object;
-      const userID = paymentIntent.metadata.userID;
-      const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object;
+    const userID = paymentIntent.metadata.userID;
+    const subscriptionTypeID = paymentIntent.metadata.SubscriptionTypeID;
 
-      try {
-        const user = await User.findByPk(userID);
-        if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-
-        await user.update({ SubscriptionTypeID: subscriptionTypeID });
-        console.log(`User ${userID} subscription updated to ${subscriptionTypeID}`);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error updating subscription' });
+    try {
+      const user = await User.findByPk(userID);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
-      break;
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-  }
 
-  res.json({ received: true });
+      const subscriptionType = await SubscriptionType.findByPk(subscriptionTypeID);
+      if (!subscriptionType) {
+        return res.status(404).json({ error: 'Subscription type not found' });
+      }
+
+      const startDate = new Date(); // Subscription starts from the payment date
+      const duration = subscriptionType.Duration; // Duration is in days, fetched from SubscriptionType table
+      const endDate = moment(startDate).add(duration, 'days').toDate(); // Calculate end date
+
+      // Update user's subscription details
+      await user.update({
+        SubscriptionTypeID: subscriptionTypeID,
+        SubscriptionStartDate: startDate,
+        SubscriptionEndDate: endDate
+      });
+      console.log(`User ${userID} subscription updated to ${subscriptionTypeID} from ${startDate} to ${endDate}`);
+      res.json({ message: 'Subscription updated successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error updating subscription' });
+    }
+  } else {
+    console.log(`Unhandled event type ${event.type}`);
+    res.json({ received: true });
+  }
 };
 
 const getPublishableKey = (req, res) => {

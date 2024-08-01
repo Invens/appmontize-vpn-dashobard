@@ -11,7 +11,9 @@ const {
   getSubscriptionDetails,
   upgradeSubscription,
   getUserById,
-  getAllUsers
+  getAllUsers,
+  RequestPasswordResetOtp,
+  ResetPassword
 } = require('../controllers/userController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
@@ -29,4 +31,6 @@ router.get('/:id', authenticateToken, getUserById); // Protected route
 router.get('/', authenticateToken, getAllUsers); // Protected route
 router.get('/dashboard-user', getAllUsers);
 router.get('/dashboard-user/:id',getUserById);
+router.get('/request-password-reset-otp', RequestPasswordResetOtp);
+router.get('/reset-password', ResetPassword);
 module.exports = router;

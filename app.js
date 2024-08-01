@@ -1,6 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+
+const cron = require('node-cron');
+const { checkSubscriptions } = require('./subscriptionCheck');
+
+
 const bodyParser = require('body-parser');
 const { sequelize } = require('./models');
 const authRoutes = require('./routes/authRoutes');
@@ -55,3 +60,10 @@ sequelize.sync()
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
+
+
+  // Set up the cron job to check subscriptions daily at midnight
+cron.schedule('0 0 * * *', () => {
+  console.log('Running subscription check...');
+  checkSubscriptions();
+});

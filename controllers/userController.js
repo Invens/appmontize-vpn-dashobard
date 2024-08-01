@@ -14,7 +14,7 @@ const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(Password, 10);
-    const defaultSubscription = await SubscriptionType.findOne({ where: { SubscriptionTypeID: 8 } });
+    const defaultSubscription = await SubscriptionType.findOne({ where: { SubscriptionTypeID: 1 } });
 
     const otp = generateOtp();
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes

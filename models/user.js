@@ -1,6 +1,6 @@
 // models/user.js
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
+  const User = sequelize.define('user', {
     UserID: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -52,9 +52,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     }
   },
+  
   {
     timestamps: true
-  });
+  }
+
+
+  );
 
   User.associate = models => {
     User.belongsTo(models.SubscriptionType, { foreignKey: 'SubscriptionTypeID' });

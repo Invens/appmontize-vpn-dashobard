@@ -257,7 +257,10 @@ const RequestPasswordResetOtp = async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ where: { Email: email } });
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      console.error('User not found:', email);
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     const otp = generateOtp();
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
@@ -280,6 +283,7 @@ const ResetPassword = async (req, res) => {
   try {
     const user = await User.findOne({ where: { Email: email } });
     if (!user || user.OTP !== otp || new Date() > user.OTPExpiresAt) {
+      console.error('Invalid or expired OTP for email:', email);
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 

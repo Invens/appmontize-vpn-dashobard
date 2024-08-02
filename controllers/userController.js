@@ -253,7 +253,6 @@ const getAllUsers = async (req, res) => {
 };
 
 
-
 const RequestPasswordResetOtp = async (req, res) => {
   const { email } = req.body;
   try {
@@ -270,11 +269,12 @@ const RequestPasswordResetOtp = async (req, res) => {
     await sendOtpEmail(email, otp);
     res.status(200).json({ message: 'OTP sent to your email' });
   } catch (error) {
-    console.error(error);
+    console.error('Error sending OTP:', error);
     res.status(500).json({ message: 'Error sending OTP' });
   }
 };
 
+// Reset password using OTP
 const ResetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
   try {
@@ -290,11 +290,10 @@ const ResetPassword = async (req, res) => {
 
     res.status(200).json({ message: 'Password reset successfully' });
   } catch (error) {
-    console.error(error);
+    console.error('Error resetting password:', error);
     res.status(500).json({ message: 'Error resetting password' });
   }
 };
-
 
 
 module.exports = {

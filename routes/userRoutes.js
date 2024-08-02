@@ -31,6 +31,6 @@ router.get('/:id', authenticateToken, getUserById); // Protected route
 router.get('/', authenticateToken, getAllUsers); // Protected route
 router.get('/dashboard-user', getAllUsers);
 router.get('/dashboard-user/:id',getUserById);
-router.get('/request-password-reset-otp', RequestPasswordResetOtp);
-router.get('/reset-password', ResetPassword);
+router.post('/request-password-reset-otp', RequestPasswordResetOtp);
+router.post('/reset-password', ResetPassword);
 module.exports = router;

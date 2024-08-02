@@ -274,7 +274,7 @@ const RequestPasswordResetOtp = async (req, res) => {
   }
 };
 
-// Reset password using OTP
+// Reset Password using OTP
 const ResetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
   try {
@@ -294,7 +294,6 @@ const ResetPassword = async (req, res) => {
     res.status(500).json({ message: 'Error resetting password' });
   }
 };
-
 
 module.exports = {
   

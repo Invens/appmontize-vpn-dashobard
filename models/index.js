@@ -26,6 +26,10 @@ RecentlyConnectedServer.associate = (models) => {
   RecentlyConnectedServer.belongsTo(models.User, { foreignKey: 'userId' });
 };
 
+
+User.hasMany(AccountDeletionRequest, { foreignKey: 'UserID' });
+AccountDeletionRequest.belongsTo(User, { foreignKey: 'UserID' });
+
 // Export models and sequelize instance
 module.exports = {
   sequelize,

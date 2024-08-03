@@ -1,6 +1,10 @@
-// models/AccountDeletionRequest.js
 module.exports = (sequelize, DataTypes) => {
     const AccountDeletionRequest = sequelize.define('AccountDeletionRequest', {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
       UserID: {
         type: DataTypes.INTEGER,
         allowNull: false,

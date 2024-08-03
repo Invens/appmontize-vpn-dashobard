@@ -13,7 +13,9 @@ const {
   getUserById,
   getAllUsers,
   RequestPasswordResetOtp,
-  ResetPassword
+  ResetPassword,
+  RequestAccountDeletion
+
 } = require('../controllers/userController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
@@ -33,4 +35,5 @@ router.get('/dashboard-user', getAllUsers);
 router.get('/dashboard-user/:id',getUserById);
 router.post('/request-password-reset-otp', RequestPasswordResetOtp);
 router.post('/reset-password', ResetPassword);
+router.post('/account-deletion-request', RequestAccountDeletion);
 module.exports = router;

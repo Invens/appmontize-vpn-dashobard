@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { User, SubscriptionType, GuestUser } = require('../models');
-const { generateOtp, sendOtpEmail } = require('../utils/otputils');
+const { User, SubscriptionType, GuestUser, AccountDeletionRequest } = require('../models');
+const { generateOtp, sendOtpEmail, sendDeletionRequestNotification } = require('../utils/otputils');
 
 // user registration
 const register = async (req, res) => {
@@ -299,6 +299,34 @@ const ResetPassword = async (req, res) => {
   }
 };
 
+
+const RequestAccountDeletion = async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const userID = req.user.userID;
+
+    const user = await User.findByPk(userID);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const deletionRequest = await AccountDeletionRequest.create({
+      UserID: userID,
+      Email: user.Email,
+      Reason: reason,
+    });
+
+    // Notify admin
+    await sendDeletionRequestNotification(deletionRequest);
+
+    res.status(200).json({ message: 'Account deletion request submitted successfully' });
+  } catch (error) {
+    console.error('Error requesting account deletion:', error);
+    res.status(500).json({ message: 'Error requesting account deletion' });
+  }
+};
+
 module.exports = {
   
   verifyOTP,
@@ -313,5 +341,6 @@ module.exports = {
   getUserById,
   getAllUsers,
   RequestPasswordResetOtp,
-  ResetPassword
+  ResetPassword,
+  RequestAccountDeletion
 };

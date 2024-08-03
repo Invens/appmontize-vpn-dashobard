@@ -332,7 +332,7 @@ const RequestAccountDeletion = async (req, res) => {
     );
 
     // Notify admin
-    await sendDeletionRequestNotification({ Email: email, Reason: reason });
+    await sendDeletionRequestNotification({ Email: Email, Reason: reason });
 
     res.status(200).json({ message: 'Account deletion request submitted successfully' });
   } catch (error) {

@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User, SubscriptionType, GuestUser, AccountDeletionRequest } = require('../models');
 const { generateOtp, sendOtpEmail, sendDeletionRequestNotification } = require('../utils/otputils');
+const retry = require('async-retry');
 
 // user registration
 const register = async (req, res) => {
@@ -299,7 +300,6 @@ const ResetPassword = async (req, res) => {
   }
 };
 
-
 const RequestAccountDeletion = async (req, res) => {
   try {
     const { Email, reason } = req.body;
@@ -314,14 +314,25 @@ const RequestAccountDeletion = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const deletionRequest = await AccountDeletionRequest.create({
-      UserID: user.UserID,
-      Email: user.Email,
-      Reason: reason,
-    });
+    await retry(
+      async () => {
+        await AccountDeletionRequest.create({
+          UserID: user.UserID,
+          Email: user.Email,
+          Reason: reason,
+          RequestedAt: new Date()
+        });
+      },
+      {
+        retries: 5,
+        onRetry: (error, attempt) => {
+          console.error(`Retry attempt ${attempt}: ${error.message}`);
+        },
+      }
+    );
 
     // Notify admin
-    await sendDeletionRequestNotification(deletionRequest);
+    await sendDeletionRequestNotification({ Email: email, Reason: reason });
 
     res.status(200).json({ message: 'Account deletion request submitted successfully' });
   } catch (error) {
@@ -329,7 +340,6 @@ const RequestAccountDeletion = async (req, res) => {
     res.status(500).json({ message: 'Error requesting account deletion' });
   }
 };
-
 
 module.exports = {
   

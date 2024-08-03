@@ -4,6 +4,15 @@
     "password": "Loginamd@321",
     "database": "lokidashboard",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "dialectOptions": {
+      "connectTimeout": 60000
+    },
+    "pool": {
+      "max": 10,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
   }
 }

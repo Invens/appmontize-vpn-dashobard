@@ -10,6 +10,7 @@ const Admin = require('./admin')(sequelize, DataTypes);
 const Notification = require('./notification')(sequelize, DataTypes);
 const NotificationHistory = require('./notificationHistory')(sequelize, DataTypes);
 const RecentlyConnectedServer = require('./recentlyConnectedServer')(sequelize, DataTypes);
+const AccountDeletionRequest = require('./AccountDeletionRequest')(sequelize, DataTypes);
 
 // Define associations
 User.associate = (models) => {
@@ -36,4 +37,5 @@ module.exports = {
   Notification,
   NotificationHistory,
   RecentlyConnectedServer,
+  AccountDeletionRequest
 };

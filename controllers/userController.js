@@ -302,17 +302,20 @@ const ResetPassword = async (req, res) => {
 
 const RequestAccountDeletion = async (req, res) => {
   try {
-    const { reason } = req.body;
-    const userID = req.user.userID;
+    const { Email, reason } = req.body;
 
-    const user = await User.findByPk(userID);
+    if (!Email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = await User.findOne({ where: { Email: Email } });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     const deletionRequest = await AccountDeletionRequest.create({
-      UserID: userID,
+      UserID: user.UserID,
       Email: user.Email,
       Reason: reason,
     });
@@ -326,6 +329,7 @@ const RequestAccountDeletion = async (req, res) => {
     res.status(500).json({ message: 'Error requesting account deletion' });
   }
 };
+
 
 module.exports = {
   

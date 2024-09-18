@@ -1,4 +1,4 @@
-const paypal = require('@paypal/checkout-server-sdk');
+const paypal = require('paypal-rest-sdk');
 const { User, SubscriptionType } = require('../models');
 const moment = require('moment');
 
@@ -8,7 +8,7 @@ const client = new paypal.core.PayPalHttpClient(environment);
 
 // Create PayPal order
 const createPaypalOrder = async (req, res) => {
-  const { userID, SubscriptionTypeID } = req.body;
+  const {amount, description, userID, SubscriptionTypeID, currency } = req.body;
 
   try {
     const subscription = await SubscriptionType.findByPk(SubscriptionTypeID);
@@ -36,7 +36,9 @@ const createPaypalOrder = async (req, res) => {
       ],
       application_context: {
         brand_name: 'Loki VPN',
-        user_action: 'PAY_NOW', // User action when they land on PayPal
+        user_action: 'PAY_NOW',
+        return_url: 'https://api.lokivpn.com/api/paypal/return',  // Replace with your return URL
+        cancel_url: 'https://api.lokivpn.com/api/paypal/cancel',  // Replace with your cancel URL
       },
     });
 
@@ -152,6 +154,34 @@ const getPublishableKey = (req, res) => {
 };
 
 
+const returnURL = (req, res) => {
+
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).send('Missing payment token');
+  }
+
+  try {
+    const captureRequest = new paypal.orders.OrdersCaptureRequest(token);
+    const  captureResponse =  client.execute(captureRequest);
+
+    if (captureResponse.result.status === 'COMPLETED') {
+      res.send('Payment successful! Thank you for your purchase.');
+    } else {
+      res.status(500).send('Payment capture failed');
+    }
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.status(500).send('Error processing payment');
+  }
+}
+
+const cancelURL = (req, res) => {
+  res.send('Payment canceled. Please try again or contact support.');
+
+}
+
 module.exports = {
   createPaypalOrder,
   paymentCallback,
@@ -160,4 +190,6 @@ module.exports = {
   orderStatus,
   getOrderTransactions,
   getPublishableKey,
+  returnURL,
+  cancelURL
 };

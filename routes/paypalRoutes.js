@@ -8,6 +8,8 @@ const {
   orderStatus,
   getOrderTransactions,
   getPublishableKey,
+  returnURL,
+  cancelURL,
 } = require('../controllers/PayPalController');
 
 const router = express.Router();
@@ -22,5 +24,7 @@ router.get('/paypal/orders', listOrders);
 router.get('/paypal/orders/:orderId/status', orderStatus);
 router.get('/paypal/orders/:orderId/transactions', getOrderTransactions);
 router.get('/publishable-key', getPublishableKey);
+router.get('/return', returnURL);
+router.get('/cancel',cancelURL);
 
 module.exports = router;

@@ -23,6 +23,7 @@
     "mysql2": "^3.10.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.14",
+    "paypal-rest-sdk": "^1.8.1",
     "razorpay": "^2.9.4",
     "sequelize": "^6.37.3",
     "stripe": "^16.2.0"

@@ -21,6 +21,6 @@ router.get('/paypal/orders/:orderId', getOrder);
 router.get('/paypal/orders', listOrders);
 router.get('/paypal/orders/:orderId/status', orderStatus);
 router.get('/paypal/orders/:orderId/transactions', getOrderTransactions);
-router.get('/paypal/publishable-key', getPublishableKey);
+router.get('/publishable-key', getPublishableKey);
 
 module.exports = router;

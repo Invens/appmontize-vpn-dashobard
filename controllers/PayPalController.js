@@ -7,7 +7,6 @@ const environment = new paypal.core.SandboxEnvironment(process.env.PAYPAL_CLIENT
 const client = new paypal.core.PayPalHttpClient(environment);
 
 // Create PayPal order
-// Create PayPal order
 const createPaypalOrder = async (req, res) => {
   const { userID, SubscriptionTypeID } = req.body;
 
@@ -141,8 +140,17 @@ const getOrderTransactions = async (req, res) => {
 
 // Get PayPal publishable key (client ID)
 const getPublishableKey = (req, res) => {
-  res.json({ publishableKey: process.env.PAYPAL_CLIENT_ID });
+  const clientId = process.env.PAYPAL_CLIENT_ID;
+  const secretId = process.env.PAYPAL_CLIENT_SECRET;
+  const sandbox = process.env.PAYPAL_SANDBOX === 'true';
+
+  res.json({
+    clientId,
+    secretId,
+    sandbox,
+  });
 };
+
 
 module.exports = {
   createPaypalOrder,

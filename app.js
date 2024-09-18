@@ -16,6 +16,7 @@ const serverRoutes = require('./routes/serverRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const stripeRoutes = require('./routes/stripeRoutes');
+const PaypalRoutes = require('./routes/paypalRoutes');
 const razorpayRoutes = require('./routes/razorpayRoutes');
 const recentlyConnectedServerRoutes = require('./routes/recentlyConnectedServerRoutes');
 
@@ -35,6 +36,9 @@ app.use(
 
 // Route to handle Stripe webhooks with raw body
 app.use('/api/stripe', stripeRoutes);
+
+// paypal api
+app.use('/api/paypal', PaypalRoutes);
 
 app.use(express.json());  // General JSON parsing middleware
 

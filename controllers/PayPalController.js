@@ -7,6 +7,7 @@ const environment = new paypal.core.SandboxEnvironment(process.env.PAYPAL_CLIENT
 const client = new paypal.core.PayPalHttpClient(environment);
 
 // Create PayPal order
+// Create PayPal order
 const createPaypalOrder = async (req, res) => {
   const { userID, SubscriptionTypeID } = req.body;
 
@@ -16,6 +17,12 @@ const createPaypalOrder = async (req, res) => {
       return res.status(404).json({ message: 'Subscription not found' });
     }
 
+    // Ensure subscription.Price is a number before using .toFixed
+    const price = parseFloat(subscription.Price);
+    if (isNaN(price)) {
+      return res.status(400).json({ message: 'Invalid price format for subscription' });
+    }
+
     const request = new paypal.orders.OrdersCreateRequest();
     request.requestBody({
       intent: 'CAPTURE',
@@ -23,11 +30,9 @@ const createPaypalOrder = async (req, res) => {
         {
           amount: {
             currency_code: 'USD',
-            value: subscription.Price.toFixed(2), // Convert price to string format
+            value: price.toFixed(2), // Convert price to string format
           },
           description: `Subscription for ${subscription.Name}`,
-          custom_id: userID, // Custom ID for the user
-          reference_id: SubscriptionTypeID, // Reference for subscription type
         },
       ],
       application_context: {
@@ -43,6 +48,7 @@ const createPaypalOrder = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // PayPal payment callback (webhook)
 const paymentCallback = async (req, res) => {

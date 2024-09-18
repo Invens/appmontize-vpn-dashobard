@@ -1,15 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const {
-  createPaypalOrder,
+  createPaypalPayment,
   paymentCallback,
-  getOrder,
-  listOrders,
-  orderStatus,
-  getOrderTransactions,
+  getPayment,
+  getPaymentTransactions,
   getPublishableKey,
   returnURL,
-  cancelURL,
+  cancelURL
 } = require('../controllers/PayPalController');
 
 const router = express.Router();
@@ -18,11 +16,11 @@ const router = express.Router();
 router.post('/paypal-webhook', bodyParser.json(), paymentCallback);
 
 // PayPal order routes
-router.post('/create-paypal-order', createPaypalOrder);
-router.get('/paypal/orders/:orderId', getOrder);
-router.get('/paypal/orders', listOrders);
-router.get('/paypal/orders/:orderId/status', orderStatus);
-router.get('/paypal/orders/:orderId/transactions', getOrderTransactions);
+router.post('/create-paypal-order', createPaypalPayment);
+router.get('/paypal/orders/:orderId', getPayment);
+router.get('/paypal/orders', getPaymentTransactions);
+// router.get('/paypal/orders/:orderId/status', orderStatus);
+// router.get('/paypal/orders/:orderId/transactions', getOrderTransactions);
 router.get('/publishable-key', getPublishableKey);
 router.get('/return', returnURL);
 router.get('/cancel',cancelURL);

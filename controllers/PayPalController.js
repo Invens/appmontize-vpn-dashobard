@@ -70,28 +70,28 @@ const createPaypalPayment = async (req, res) => {
 
 // PayPal payment callback (webhook)
 const paymentCallback = async (req, res) => {
-  const { paymentId, PayerID } = req.query;
+  const { subscriptionID, userId, description, amount, paymentId } = req.body;
 
   try {
-    const execute_payment_json = {
-      payer_id: PayerID
-    };
-
-    paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) => {
+    // Call PayPal API to verify the payment
+    paypal.payment.get(paymentId, async (error, payment) => {
       if (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
+        console.error('Error verifying payment with PayPal:', error.response);
+        return res.status(500).json({ error: 'Error verifying payment with PayPal' });
       } else {
+        // Check if the payment was approved
         if (payment.state === 'approved') {
-          const user = await User.findByPk(payment.payer.payer_info.payer_id);
-          const subscription = await SubscriptionType.findByPk(payment.transactions[0].item_list.items[0].sku);
+          // Retrieve user and subscription information
+          const user = await User.findByPk(userId);
+          const subscription = await SubscriptionType.findByPk(subscriptionID);
 
           if (!user || !subscription) {
             return res.status(404).json({ error: 'User or subscription not found' });
           }
 
+          // Calculate subscription start and end dates
           const startDate = new Date();
-          const duration = subscription.Duration;
+          const duration = subscription.Duration; // Assuming duration is in days
           const endDate = moment(startDate).add(duration, 'days').toDate();
 
           // Update user subscription details
@@ -102,17 +102,21 @@ const paymentCallback = async (req, res) => {
           });
 
           console.log(`User ${user.id} subscription updated to ${subscription.ID} from ${startDate} to ${endDate}`);
-          res.send('Payment successful! Thank you for your purchase.');
+
+          // Respond with success
+          return res.status(200).json({ message: 'Payment successful! Subscription updated.' });
         } else {
-          res.status(400).send('Payment not approved');
+          // Payment was not approved
+          return res.status(400).json({ message: 'Payment not approved' });
         }
       }
     });
   } catch (error) {
     console.error('Error processing payment:', error);
-    res.status(500).send('Error processing payment');
+    return res.status(500).json({ error: 'Error processing payment' });
   }
 };
+
 
 // Get PayPal payment details
 const getPayment = async (req, res) => {
